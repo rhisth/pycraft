@@ -149,7 +149,7 @@ def start_version(id, nickname):
     cp = ";".join(get_libraries(version_info["libraries"]))
     mainclass = version_info["mainClass"]
     args = get_arguments(version_info, nickname)
-    command = f'java -Dos.name="Windows 10" -Dos.version=10.0 -Djava.library.path={nat_dir}/{id} -Dminecraft.launcher.brand=minecraft-launcher -Dminecraft.launcher.version=2.7.12 -cp {cp};{ver_dir}/{id}/{id}.jar -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -Xmx2G -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M -Dfml.ignoreInvalidMinecraftCertificates=true -Dfml.ignorePatchDiscrepancies=true -Djava.net.preferIPv4Stack=true -Dminecraft.applet.TargetDirectory={minecraft_path} {mainclass} {args}'
+    command = f'java -Dos.name="Windows 10" -Dos.version=10.0 -Djava.library.path={nat_dir}/{id} -Dminecraft.launcher.brand=minecraft-launcher -Dminecraft.launcher.version=2.7.12 -Dminecraft.api.auth.host=http://127.0.0.1 -Dminecraft.api.account.host=http://127.0.0.1 -Dminecraft.api.session.host=http://127.0.0.1 -Dminecraft.api.services.host=http://127.0.0.1 -cp {cp};{ver_dir}/{id}/{id}.jar -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -Xmx2G -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M -Dfml.ignoreInvalidMinecraftCertificates=true -Dfml.ignorePatchDiscrepancies=true -Djava.net.preferIPv4Stack=true -Dminecraft.applet.TargetDirectory={minecraft_path} {mainclass} {args}'
     setup_natives(id)
     print(command)
     os.system(command)
