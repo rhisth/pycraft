@@ -57,16 +57,17 @@ def check_rules(rules):
             if not "os" in rule:
                 result = True
             else:
-                if os_name == rule["os"]:
+                if os_name == rule["os"]["name"]:
                     result = True
         if action == "disallow" and "os" in rule:
-            if os_name == rule["os"]:
+            if os_name == rule["os"]["name"]:
                 result = False
                 break
     return result
 
 def download_resources(index):
-    for object in index["objects"]:
+    objects = index["objects"]
+    for object in objects:
         hash = objects[object]["hash"]
         folder = hash[:2]
         path = f"{obj_dir}/{folder}/{hash}"
@@ -76,7 +77,7 @@ def download_resources(index):
 
 def download_libraries(libraries):
     for library in libraries:
-        if "rules" in library and not "natives" in library:
+        if "rules" in library:
             if not check_rules(library["rules"]):
                 continue
         if "natives" in library:
@@ -120,11 +121,12 @@ def setup_natives(id):
 def get_libraries(libraries):
     liblist = []
     for library in libraries:
-        if not "natives" in library:
-            if "rules" in library:
-                if not check_rules(library["rules"]):
-                    continue
-            liblist.append(f'{lib_dir}/{library["downloads"]["artifact"]["path"]}')
+        if "rules" in library:
+            if not check_rules(library["rules"]):
+                continue
+        if "natives" in library:
+            continue
+        liblist.append(f'{lib_dir}/{library["downloads"]["artifact"]["path"]}')
     return liblist
 
 def get_arguments(info, nickname):
@@ -133,12 +135,12 @@ def get_arguments(info, nickname):
     else:
         args = info["minecraftArguments"]
     id = info["id"]
-    uuid = "null"
+    uuid = "25a2e9d1-9af8-3c09-86b9-5e8d72985e30"
     access_token = "null"
     user_type = "msa"
     version_type = info["type"]
     user_properties = "{}"
-    replacing = {"${auth_player_name}": nickname, "${version_name}": id, "${game_directory}": minecraft_path, "${assets_root}": ast_dir, "${assets_index_name}": info["assetIndex"]["id"], "${auth_uuid}": uuid, "${auth_access_token}": access_token, "${user_type}": user_type, "${version_type}": version_type, "${user_properties}": user_properties}
+    replacing = {"${auth_player_name}": f'"{nickname}"', "${version_name}": id, "${game_directory}": minecraft_path, "${assets_root}": ast_dir, "${assets_index_name}": info["assetIndex"]["id"], "${auth_uuid}": uuid, "${auth_access_token}": access_token, "${user_type}": user_type, "${version_type}": version_type, "${user_properties}": user_properties, "${clientid}": "null", "${auth_xuid}": "null"}
     for arg in replacing:
         args = args.replace(arg, replacing[arg])
     return args
@@ -149,7 +151,7 @@ def start_version(id, nickname):
     cp = ";".join(get_libraries(version_info["libraries"]))
     mainclass = version_info["mainClass"]
     args = get_arguments(version_info, nickname)
-    command = f'java -Dos.name="Windows 10" -Dos.version=10.0 -Djava.library.path={nat_dir}/{id} -Dminecraft.launcher.brand=minecraft-launcher -Dminecraft.launcher.version=2.7.12 -Dminecraft.api.auth.host=http://127.0.0.1 -Dminecraft.api.account.host=http://127.0.0.1 -Dminecraft.api.session.host=http://127.0.0.1 -Dminecraft.api.services.host=http://127.0.0.1 -cp {cp};{ver_dir}/{id}/{id}.jar -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -Xmx2G -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M -Dfml.ignoreInvalidMinecraftCertificates=true -Dfml.ignorePatchDiscrepancies=true -Djava.net.preferIPv4Stack=true -Dminecraft.applet.TargetDirectory={minecraft_path} {mainclass} {args}'
+    command = f'java -Dos.name="Windows 10" -Dos.version=10.0 -Djava.library.path={nat_dir}/{id} -Dminecraft.launcher.brand=minecraft-launcher -Dminecraft.launcher.version=2.7.12 -Dminecraft.api.auth.host=http://127.0.0.1 -Dminecraft.api.account.host=http://127.0.0.1 -Dminecraft.api.session.host=http://127.0.0.1 -Dminecraft.api.services.host=http://127.0.0.1 -cp {cp};{ver_dir}/{id}/{id}.jar -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -Xmx4G -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M -Dfml.ignoreInvalidMinecraftCertificates=true -Dfml.ignorePatchDiscrepancies=true -Djava.net.preferIPv4Stack=true -Dminecraft.applet.TargetDirectory={minecraft_path} {mainclass} {args}'
     setup_natives(id)
     print(command)
     os.system(command)
@@ -168,7 +170,7 @@ def process_command(text):
     try:
         exec(f"{commands[command]}({args})")
     except Exception as ex:
-        print(ex)
+        print("ОШИБКА:", ex)
 
 def main():
     while True:
