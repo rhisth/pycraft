@@ -77,7 +77,7 @@ def download_resources(index):
 
 def download_libraries(libraries):
     for library in libraries:
-        if "rules" in library:
+        if "rules" in library and not "natives" in library:
             if not check_rules(library["rules"]):
                 continue
         if "natives" in library:
